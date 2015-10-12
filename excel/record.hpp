@@ -39,6 +39,10 @@
 #include <vector>
 #include <sstream>
 
+//! edit follow define to up the speed. by yzy
+#define MAX_SST_SIZE 100          
+#define MAX_WORKBOOK_SIZE 0x500 
+
 
 namespace Excel {
 
