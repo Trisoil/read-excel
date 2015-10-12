@@ -143,6 +143,21 @@ Sheet::cell( size_t row, size_t column ) const
 	return m_dummyCell;
 }
 
+size_t 
+Sheet::cellCount() const
+{
+	return m_cells.size() ;
+}
+
+const std::wstring & 
+Sheet::getSSTString(int nNum) const
+{
+	if(nNum < m_sst.size())
+	{
+		return m_sst[nNum] ;
+	}
+}
+
 size_t
 Sheet::rowsCount() const
 {
@@ -159,6 +174,8 @@ void
 Sheet::load( const BoundSheet & boundSheet,
 	Stream & stream )
 {
+	short code = 0 ;
+	int nSizer = 0 ;
 	stream.seek( boundSheet.BOFPosition(), Stream::FromBeginning );
 	BOF bof;
 
@@ -170,9 +187,11 @@ Sheet::load( const BoundSheet & boundSheet,
 
 	while( true )
 	{
+		if(nSizer > MAX_WORKBOOK_SIZE) return;
 		Record record( stream );
+		code = record.code() ;
 
-		switch( record.code() )
+		switch( code )
 		{
 			case XL_DIMENSION :
 				//handleDimensions( bof, record );
@@ -188,15 +207,15 @@ Sheet::load( const BoundSheet & boundSheet,
 				break;
 
 			case XL_MULRK:
-				handleMULRK( record );
+				//handleMULRK( record );
 				break;
 
 			case XL_NUMBER:
-				handleNUMBER( record );
+				//handleNUMBER( record );
 				break;
 
 			case XL_FORMULA:
-				handleFORMULA( record, stream );
+				//handleFORMULA( record, stream );
 				break;
 
 			case XL_EOF:
@@ -205,6 +224,7 @@ Sheet::load( const BoundSheet & boundSheet,
 			default:
 				break;
 		}
+		nSizer += 2 ;
 	}
 }
 
