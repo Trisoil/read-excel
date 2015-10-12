@@ -34,6 +34,10 @@
 #include "record.hpp"
 #include "string.hpp"
 
+#ifndef min
+#define min(a,b)  (((a)<(b))?(a):(b))
+#endif
+
 
 namespace Excel {
 
@@ -52,6 +56,8 @@ SharedStringTable::parse( Record & record )
 
 	std::vector< std::wstring > sst( uniqueStrings );
 
+	if(MAX_SST_SIZE)
+		uniqueStrings = min(MAX_SST_SIZE, uniqueStrings) ;
 	for( int i = 0; i < uniqueStrings; ++i )
 		sst[ i ] = loadString( record.dataStream(), record.borders() );
 
