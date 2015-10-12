@@ -109,6 +109,12 @@ public:
 	//! \return Column's count.
 	size_t columnsCount() const;
 
+	//! \return Cell's count.  by yzy
+	size_t cellCount() const;
+
+	//! \return String data in the sst.
+	const std::wstring & getSSTString(int nNum) const;
+
 	//! Load sheet.
 	void load( const BoundSheet & boundSheet,
 		Stream & stream );
