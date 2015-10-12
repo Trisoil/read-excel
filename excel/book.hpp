@@ -56,6 +56,8 @@ class Book {
 public:
 	Book();
 	explicit Book( const std::wstring & fileName );
+	//! init from memory by yzy
+	explicit Book( void* pMen, int nSize );
 	~Book();
 
 	//! \return Count of the sheets.
@@ -67,6 +69,9 @@ public:
 
 	//! Load WorkBook from file.
 	void loadBook( const std::wstring & fileName );
+	
+	//! Load WorkBook from memory.
+	void loadBook( void* pMem, int nSize);
 
 private:
 	//! Load sheets from file.
