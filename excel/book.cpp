@@ -56,6 +56,12 @@ Book::Book()
 {
 }
 
+
+Book::Book( void* pMen, int nSize )
+{
+	loadBook( pMen, nSize );
+}
+
 Book::Book( const std::wstring & fileName )
 {
 	loadBook( fileName );
@@ -91,11 +97,14 @@ Book::sheet( size_t index ) const
 {
 	if( index < m_sheets.size() )
 		return m_sheets[ index ];
-
+#if 0
 	std::wstringstream stream;
 	stream << L"There is no such sheet with index : " << index;
 
 	throw Exception( stream.str() );
+#else
+	return NULL;
+#endif
 }
 
 void
@@ -120,22 +129,56 @@ Book::loadBook( const std::wstring & fileName )
 	}
 }
 
+void 
+Book::loadBook( void* pMem, int nSize )
+{
+	try {
+		clear();
+
+		CompoundFile::File file( pMem, nSize );
+		std::stringstream gangplank;
+		std::iostream istr(gangplank.rdbuf());
+
+		istr.write((char*)pMem, nSize);
+		std::auto_ptr< Stream > stream = file.stream(
+			file.directory( L"Workbook" ), istr );
+
+		std::vector< BoundSheet > boundSheets;
+
+		loadGlobals( boundSheets, *stream.get() );
+
+		loadWorkSheets( boundSheets, *stream.get() );
+	}
+	catch( const CompoundFile::Exception & x )
+	{
+		throw Exception( x.whatAsWString() );
+	}
+}
+
 void
 Book::loadGlobals( std::vector< BoundSheet > & boundSheets,
 	Stream & stream )
 {
+    int nSizer = 0 ;
+	short code = 0 ;
+	bool bLoad = false ;
 	while( true )
 	{
+		if(nSizer > MAX_WORKBOOK_SIZE) return ;
 		Record r( stream );
+		code = r.code() ;
 
-		switch( r.code() )
+		switch( code )
 		{
 			case XL_SST:
 				m_sst = SharedStringTable::parse( r );
 				break;
 
 			case XL_BOUNDSHEET:
+				//! Ö»¶ÁÈ¡Ò»¸öWorkSheet by yzy
+				if(bLoad) break;
 				boundSheets.push_back( parseBoundSheet( r ) );
+				bLoad = true;
 				break;
 
 			case XL_EOF:
@@ -144,6 +187,7 @@ Book::loadGlobals( std::vector< BoundSheet > & boundSheets,
 			default:
 				break;
 		}
+		nSizer += 2 ;
 	}
 }
 
@@ -178,6 +222,7 @@ Book::loadWorkSheets( const std::vector< BoundSheet > & boundSheets,
 			sheet->load( *it, stream );
 			m_sheets.push_back( sheet.release() );
 		}
+		return; //! Ö»¼ÓÔØÒ»¸öWorkSheet by yzy
 	}
 }
 
